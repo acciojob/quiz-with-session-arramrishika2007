@@ -1,13 +1,11 @@
-//your JS code here.
-
 const questionsElement = document.getElementById("questions");
 const submitBtn = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Load saved progress from sessionStorage
+// Load saved progress
 let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || [];
 
-// Display previous score if available
+// Show saved score if available
 const savedScore = localStorage.getItem("score");
 if (savedScore !== null) {
   scoreElement.textContent = `Your score is ${savedScore} out of 5.`;
@@ -32,7 +30,7 @@ const questions = [
   },
   {
     question: "Which is the largest planet in our solar system?",
-    choices: ["Earth", "Jupiter", "Mars", "Saturn"],
+    choices: ["Earth", "Jupiter", "Mars"],
     answer: "Jupiter",
   },
   {
@@ -42,20 +40,13 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
 function renderQuestions() {
-  questionsElement.innerHTML = "";
+  questions.forEach((question, i) => {
+    const div = document.createElement("div");
+    div.appendChild(document.createTextNode(question.question));
+    div.appendChild(document.createElement("br"));
 
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
-
-    const questionElement = document.createElement("div");
-    questionElement.appendChild(document.createTextNode(question.question));
-    questionElement.appendChild(document.createElement("br"));
-
-    for (let j = 0; j < question.choices.length; j++) {
-      const choice = question.choices[j];
-
+    question.choices.forEach((choice) => {
       const input = document.createElement("input");
       input.type = "radio";
       input.name = `question-${i}`;
@@ -65,33 +56,32 @@ function renderQuestions() {
         input.checked = true;
       }
 
-      input.addEventListener("change", function () {
+      input.addEventListener("change", () => {
         userAnswers[i] = choice;
         sessionStorage.setItem("progress", JSON.stringify(userAnswers));
       });
 
-      questionElement.appendChild(input);
-      questionElement.appendChild(document.createTextNode(choice));
-      questionElement.appendChild(document.createElement("br"));
-    }
+      div.appendChild(input);
+      div.appendChild(document.createTextNode(choice));
+      div.appendChild(document.createElement("br"));
+    });
 
-    questionsElement.appendChild(questionElement);
-  }
+    questionsElement.appendChild(div);
+  });
 }
 
 renderQuestions();
 
-// Submit button
-submitBtn.addEventListener("click", function () {
+submitBtn.addEventListener("click", () => {
   let score = 0;
 
-  for (let i = 0; i < questions.length; i++) {
-    if (userAnswers[i] === questions[i].answer) {
+  questions.forEach((question, i) => {
+    if (userAnswers[i] === question.answer) {
       score++;
     }
-  }
+  });
 
   scoreElement.textContent = `Your score is ${score} out of 5.`;
 
-  localStorage.setItem("score", score);
+  localStorage.setItem("score", String(score));
 });
